@@ -21,7 +21,7 @@ This is a basic calculator application built using Python's Tkinter library. It 
 ## ℹ️ How to Use
 
 - Click the buttons to input numbers and perform arithmetic operations.
-- `AC`: Clear the display(It's not automatic deleted you have to do it on your own)
+- `AC`: Clear the display (It's not automatically deleted, you have to do it on your own)
 - `Theme`: Toggle between light and dark themes.
 
 ## 📁 Structure
