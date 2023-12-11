@@ -3,7 +3,13 @@
 #include <string.h>
 #include <stdbool.h>
 
-GtkWidget *entry;
+typedef struct {
+    GtkWidget *window;
+    GtkWidget *grid;
+    GtkWidget *button[17];
+} calc;
+
+GtkWidget *box;
 
 #define SIZE 10
 
@@ -23,97 +29,136 @@ int count = 0;
 static void calculate(GtkButton *button, gpointer data) {
     const gchar *text = gtk_button_get_label(button);
 
-    if ((strcmp("+", text) == 0) || (strcmp("-", text) == 0) || (strcmp("/", text) == 0) || (strcmp("x", text) == 0) || (strcmp("=", text) == 0)) {
-
-        num[count] = atof(input_buffer);
-        count++;
-        clear_buffer = true;
-
-        if (strcmp("+", text) == 0) {
-            add = true;
-        }
-        if (strcmp("-", text) == 0) {
-            sub = true;
-        }
-        if (strcmp("/", text) == 0) {
-            divv = true;
-        }
-        if (strcmp("x", text) == 0) {
-            mul = true;
-        }
-    }
 
     if (strcmp("=", text) == 0) {
-
+        int x = sizeof(num) / sizeof(num[0]);
+        if (add) {
+            for (int i = 0; i < x; i++) {
+                result += num[i];
+            }
+        } else if (divv) {
+            result = num[0] / num[1];
+        } else if (sub) {
+            if (result == 0.0) {
+                result = num[0] * 2;
+            }
+            for (int i = 0; i < x; i++) {
+                result -= num[i];
+            }
+        } else if (mul) {
+            result = num[0] * num[1];
+        }
 
         add = false;
         mul = false;
         divv = false;
         sub = false;
 
-        gtk_entry_set_text(GTK_ENTRY(entry), "");
+        gtk_entry_set_text(GTK_ENTRY(box), "");
         sprintf(output_buffer, "%.3f", result);
-        gtk_entry_set_text(GTK_ENTRY(entry), output_buffer);
+        gtk_entry_set_text(GTK_ENTRY(box), output_buffer);
         result = 0.0;
+    } else if (strcmp("AC", text) == 0) {
+        gtk_entry_set_text(GTK_ENTRY(box), "");
+        memset(input_buffer, 0, sizeof(input_buffer));
+        memset(output_buffer, 0, sizeof(output_buffer));
+        count = 0;
+        memset(num, 0, sizeof(num));
+
+        add = false;
+        mul = false;
+        divv = false;
+        sub = false;
     } else {
-        if (clear_buffer) {
-            memset(input_buffer, 0, strlen(input_buffer));
-            clear_buffer = false;
+        if ((strcmp("+", text) == 0) || (strcmp("-", text) == 0) || (strcmp("/", text) == 0) || (strcmp("x", text) == 0)) {
+            num[count] = atof(input_buffer);
+            count++;
+            clear_buffer = true;
+
+            if (strcmp("+", text) == 0) {
+                add = true;
+            }
+            if (strcmp("-", text) == 0) {
+                sub = true;
+            }
+            if (strcmp("/", text) == 0) {
+                divv = true;
+            }
+            if (strcmp("x", text) == 0) {
+                mul = true;
+            }
         }
-        else 
+
+        if (clear_buffer) {
+            memset(input_buffer, 0, sizeof(input_buffer));
+            clear_buffer = false;
+        } else {
             strncat(input_buffer, text, 1);
-    
+        }
 
         strncat(output_buffer, text, 1);
-        gtk_entry_set_text(GTK_ENTRY(entry), output_buffer);
-    }
-
-    if (strcmp("C", text) == 0) {
-        gtk_entry_set_text(GTK_ENTRY(entry), "");
-        memset(input_buffer, 0, strlen(input_buffer));
-        memset(output_buffer, 0, strlen(output_buffer));
-
-        count = 0;
-        int x = sizeof(num) / sizeof(num[0]);
-
-        for (int i = 0; i < x; i++) {
-            num[i] = 0;
-        }
-
-        add = false;
-        mul = false;
-        divv = false;
-        sub = false;
+        gtk_entry_set_text(GTK_ENTRY(box), output_buffer);
     }
 }
 
 static void activate(GtkApplication *app, gpointer user_data) {
-    GtkWidget *window;
-    GtkWidget *grid;
-    GtkWidget *button[17];
+    calc widget;
 
-    window = gtk_application_window_new(app);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_window_set_title(GTK_WINDOW(window), "Calculator");
-    gtk_window_set_default_size(GTK_WINDOW(window), 200, 200);
-    gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+    widget.window = gtk_application_window_new(app);
+    gtk_window_set_position(GTK_WINDOW(widget.window), GTK_WIN_POS_CENTER);
+    gtk_window_set_title(GTK_WINDOW(widget.window), "Calculator");
+    gtk_window_set_default_size(GTK_WINDOW(widget.window), 200, 200);
+    gtk_container_set_border_width(GTK_CONTAINER(widget.window), 10);
 
-    grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
+    widget.grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(widget.window), widget.grid);
 
-    entry = gtk_entry_new();
-    gtk_editable_set_editable(GTK_EDITABLE(entry), FALSE);
-    gtk_grid_attach(GTK_GRID(grid), entry, 0, 0, 4, 1);
+    box = gtk_entry_new();
+    gtk_editable_set_editable(GTK_EDITABLE(box), FALSE);
+    gtk_grid_attach(GTK_GRID(widget.grid), box, 0, 0, 4, 1);
 
-    const gchar *button_labels[17] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "+", "-", "x", "/", "AC", "="};
 
-    for (int i = 0; i < 17; i++) {
-        button[i] = gtk_button_new_with_label(button_labels[i]);
-        gtk_grid_attach(GTK_GRID(grid), button[i], i % 4, (i / 4) + 1, 1, 1);
-        g_signal_connect(button[i], "clicked", G_CALLBACK(calculate), NULL);
+    widget.button[7] = gtk_button_new_with_label("7");
+    widget.button[8] = gtk_button_new_with_label("8");
+    widget.button[9] = gtk_button_new_with_label("9");
+    widget.button[13] = gtk_button_new_with_label("/");
+    widget.button[4] = gtk_button_new_with_label("4");
+    widget.button[5] = gtk_button_new_with_label("5");
+    widget.button[6] = gtk_button_new_with_label("6");
+    widget.button[12] = gtk_button_new_with_label("*");
+    widget.button[1] = gtk_button_new_with_label("1");
+    widget.button[2] = gtk_button_new_with_label("2");
+    widget.button[3] = gtk_button_new_with_label("3");
+    widget.button[11] = gtk_button_new_with_label("-");
+    widget.button[0] = gtk_button_new_with_label("0");
+    widget.button[10] = gtk_button_new_with_label(".");
+    widget.button[16] = gtk_button_new_with_label("=");
+    widget.button[15] = gtk_button_new_with_label("+");
+    widget.button[14] = gtk_button_new_with_label("AC");
+
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[15], 0, 1, 3, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[14], 3, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[7], 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[8], 1, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[9], 2, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[13], 3, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[4], 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[5], 1, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[6], 2, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[12], 3, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[1], 0, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[2], 1, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[3], 2, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[11], 3, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[0], 0, 5, 2, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[10], 2, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(widget.grid), widget.button[16], 3, 5, 1, 1);
+
+    for (int i = 0; i < 17; ++i) {
+        g_signal_connect(widget.button[i], "clicked", G_CALLBACK(calculate), NULL);
     }
 
-    gtk_widget_show_all(window);
+    gtk_widget_show_all(widget.window);
 }
 
 int main(int argc, char **argv) {
@@ -122,7 +167,8 @@ int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
 
     int status;
-    app = gtk_application_new("org.gtk.calculator", G_APPLICATION_DEFAULT_FLAGS);
+    app = gtk_application_new("org.gtk.calculator", G_APPLICATION_DEFAULT_FLAGS); 
+
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
