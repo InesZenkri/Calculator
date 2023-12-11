@@ -1,34 +1,36 @@
-# 🧮 Simple Calculator using Python and Tkinter
+# 🧮 Simple Calculator using GTK 
 
-This is a basic calculator application built using Python's Tkinter library. It allows users to perform simple arithmetic operations such as addition, subtraction, multiplication, and division.
+This simple calculator application is built using GTK (GIMP Toolkit) in C, providing basic arithmetic functionalities such as addition, subtraction, multiplication, and division. 🚀
 
-## 🚀 Features
+## ✨ Features
 
-- **Arithmetic Operations:** Perform addition, subtraction, multiplication, and division.
-- **Error Handling:** Handles division by zero and other arithmetic errors.
-- **Theme Toggle:** Switch between light and dark themes for the calculator.
+- Arithmetic Operations: ➕ Addition, ➖ Subtraction, ✖️ Multiplication, ➗ Division.
+- Clearing Input: 🔴 Clear input field and reset calculations.
+- Decimal Point: Allow decimal input for floating-point numbers.
 
-## 📋 Requirements
+## 🛠️ Requirements
 
-- Python 3.x
-- Tkinter (usually comes pre-installed with Python)
+- **GTK Library:** Ensure that the GTK library is installed to compile and run this program.
+- **C Compiler:** Use a C compiler like GCC to build the application.
 
-## 🛠️ Usage
+## 💡 How to Use
 
-1. Clone the repository or download the files.
-2. Run `calculate.py` to launch the calculator application.
+1. **Compile the Code:**
+   - Use a C compiler to compile the code. For example:
+     ```
+     gcc main.c -o calculator `pkg-config --cflags --libs gtk+-3.0`
+     ```
 
-## ℹ️ How to Use
+2. **Run the Application:**
+   - Execute the compiled binary to launch the calculator.
 
-- Click the buttons to input numbers and perform arithmetic operations.
-- `AC`: Clear the display (It's not automatically deleted, you have to do it on your own)
-- `Theme`: Toggle between light and dark themes.
+   ``` bash
+    ./calculator
+    ```
 
-## 📁 Structure
-
-- `calculate.py`: Main file containing the calculator logic.
-- `src/`: Contains the application's icon
-- `README.md`: Details about the project.
+3. **Calculator Interface:**
+   - The calculator window will display the numeric buttons (0-9), arithmetic operators (➕, ➖, ✖️, ➗), decimal point (.), and the equals (=) button.
+   - Click on the buttons to perform calculations.
 
 ## 🤝 Contributions
 
